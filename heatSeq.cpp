@@ -28,7 +28,7 @@ To run (for example to make a 100X100 pixel image):
 int main(int argc, char* argv[]) 
 {
 	long t_start = clock();   // the start time
-	std::cout << "---------------t_start  = "<<t_start <<"--------------\n"<<std::endl;
+	std::cout << "---------------start time  = "<< t_start <<"--------------\n"<<std::endl;
 	// X and Y dimensions. Force it to be a square.
 	const int npix = atoi(argv[1]);
 	const int npixx = npix;
@@ -41,134 +41,89 @@ int main(int argc, char* argv[])
 	// order). Eg: h(y, x) = fubar
 	Array<float, 2> h(npixy, npixx), g(npixy, npixx);
 
+
 	// Draw the printed circuit components
 	fix_boundaries2<float>(h);
 	
+	int time = 0;
 
-	//std::cout<<"Initialization    g(0,0) = "<<g(0,0) <<"address="<<&g<<std::endl;		
-	//std::cout<<"Initialization    h(0,0) = "<<h(0,0) <<"address="<<&h<<std::endl;	
-	g = h;   //1. assign array h to array g, make them enjoy same value in each cell.
-
-
-	//std::cout<<"AFTER  Initialization    g(0,0) = "<<g(0,0) <<"address="<<&g<<std::endl;		
-	//std::cout<<"AFTER  Initialization    h(0,0) = "<<h(0,0) <<"address="<<&h<<std::endl;
-	//float npi_frame[npixx+2][npixy+2] = {0.0};
-	float **npi_frame = new float*[npixx+2];
-	for (int k=0; k< npixx+2;++k)
-	{
-		npi_frame[k] = new float[npixy+2];
-	}
-	
 	int i, j;
-/*
 	for (i=0; i<npixx;i++)
 	{
 		for (j=0;j<npixy;j++)
 		{
-			npi_frame[i][j] = 255; 
-			std::cout<<npi_frame[i][j]<<",";
+			g(i,j)=h(i,j);	
 		}
-		std::cout<<std::endl;
 	}
-	
-*/
-	
+
 
 	float left, above, right, below = 0;
 	long count = 0;
 	while (1)
 	{
+		time ++;
 		count = 0;
-		for (i=1; i<npixx+1;i++)
+		for (i=0; i<npixy;i++)
 		{
-			for (j=1;j<npixy+1;j++)
+			if (i == 0 || i == npixy -1) continue;
+
+			for (j=0;j<npixx;j++)
 			{
-				npi_frame[i][j] = g(i-1, j-1); //2. assign g to a new array npi_frame which is 2 more rows and columns than g and h.
-				//std::cout<<npi_frame[i][j]<<",";
+				if (j == 0 || j == npixx -1) continue;
+
+				left = g(i, j-1 );
+				above = g(i+1, j); 
+				right = g(i, j+1);
+				below = g(i-1, j);
+				g(i, j) = (float)((left + above + right + below)/4); //2. assign g to a new array npi_frame which is 2 more rows and columns than g and h.
 			}
-			//std::cout<<std::endl;
 		}
 	
-		float left, top, right, down = 0;
-		for (i=1; i<npixx+1;i++)
+
+		// Draw the printed circuit components
+		fix_boundaries2<float>(g);
+
+		
+
+		for (i=0; i<npixy;i++)
 		{
-			for (j=1;j<npixy+1;j++)
+			for (j=0;j<npixx;j++)
 			{
-				left = npi_frame[i][j-1];
-				above = npi_frame[i-1][j];
-				right = npi_frame[i][j+1];
-				below = npi_frame[i+1][j];
-				npi_frame[i][j] = (float)((left + above + right + below)/4); //3. update each cell according to neigbours
-				//std::cout<<"npi_frame["<<i<<"]["<<j<<"] = "<<npi_frame[i][j] <<std::endl;
-				//std::cout<<npi_frame[i][j]<<",";
-				
-			}
-			//std::cout<<std::endl;
-		}
-
-		for (i=1; i<npixx+1;i++)
-		{
-			for (j=1;j<npixy+1;j++)
-			{
-
-
-				if(abs((float)(g(i-1, j-1) - npi_frame[i][j])) < 0.00001) //4. verify if meet local synchronization
+				if(fabs((float)(h(i, j) - g(i, j))) > 0) //4. verify if meet local synchronization
 				{
 					count++;
 				}
 			}
-		}
+		}		
 
-		if (count == (npixx * npixy)) //5. jump out of loop after meeting local synchronization
+
+		if (count == 0) //5. jump out of loop after meeting local synchronization
 		{
 			break;
 		}
 
-		for (i=1; i<npixx+1;i++)
+		for (i=0; i<npixx;i++)
 		{
-			for (j=1;j<npixy+1;j++)
+			for (j=0;j<npixy;j++)
 			{
-				g(i-1, j-1) = npi_frame[i][j]; //5. reassign the updated data to g	
-
+				h(i,j)=g(i,j);	
 			}
+			
 		}
 
-		// Draw the printed circuit components
-		//fix_boundaries2<float>(g);
-		//std::cout<<"------------------------counter="<<count<<std::endl;
-		//h = g;
-		// Draw the printed circuit components
-		//fix_boundaries2<float>(g);
 		
 	}
-	/*
-	for (int i=0;i<npixy; i++)
-	{
-		for (int j=0;j<npixx; j++)
-		{
 
-			std::cout<<"h("<<i<<","<<j<<")="<<h(i, j)<<std::endl;
-		}
-	}
-	*/
+	std::cout<<"------------------------times ="<<time<<std::endl;
 	
-	
-	
-
 	
 	// This is the initial value image where the boundaries and printed
 	// circuit components have been fixed
-	dump_array<float, 2>(h, "plate5.fit");
+	dump_array<float, 2>(h, "plate4.fit");
 
-
-	for (int k=0; k< npixx+2;++k)
-	{
-		delete [] npi_frame[k];
-	}
-	delete [] npi_frame;
 
 	long t_end = clock();
-	std::cout << "---------------t_end  = "<<t_end <<"--------------\n"<<std::endl;
+	std::cout << "---------------end time  is "<<t_end <<"--------------\n"<<std::endl;
 	std::cout << "The time of calculating is "<< (t_end - t_start)/double(CLOCKS_PER_SEC)<<std::endl;
 	// Complete the sequential version to compute the heat transfer,
 	// then make a parallel version of it
