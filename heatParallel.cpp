@@ -136,6 +136,10 @@ int main(int argc, char* argv[])
     long count = 0;
 
     int time = 0;
+
+
+    int istart = 0 ;
+    int iend= 0;
     # pragma omp parallel num_threads(thread_num)
 	{
 		const int tid = omp_get_thread_num ();
@@ -150,8 +154,6 @@ int main(int argc, char* argv[])
 
         //int time = 0;
 
-		int istart = 0 ; 
-		int iend= 0;
 
 
         //#pragma omp for
@@ -161,26 +163,28 @@ int main(int argc, char* argv[])
             while (1)
             {
                 time ++;
-                std::cout<<"------------------------times ="<<time<<std::endl;
+                //std::cout<<"------------------------times ="<<time<<std::endl;
                 count = 0;
 
                 /***** Set different start position according tid and the numbers of thread *******/
-                istart = tid * npixy / nthreads;
-                iend = (tid + 1) * npixy / nthreads;
-                if (tid == nthreads - 1)
-                {
-                    iend = npixy - 1;
-                }
+#pragma
+                //istart = tid * npixy / nthreads;
+                //iend = (tid + 1) * npixy / nthreads;
+                //if (tid == nthreads - 1)
+                //{
+                //    iend = npixy - 1;
+                //}
                 //std::cout<<"tid="<<tid<<": istart="<<istart<<", iend =" <<iend<<std::endl;
                 /****************/
 
-                for (i=istart; i<iend;i++)
+                for (i= tid * npixy / nthreads; i<(tid + 1) * npixy / nthreads;i++)
                 {
+                    std::cout<<"tid="<<tid<<": istart="<<tid * npixy / nthreads<<", iend =" <<(tid + 1) * npixy / nthreads<<std::endl;
                     if (i == 0 || i == npixy -1) continue;
 
-                    for (j=0;j<npixx;j++)
+                    for (j=1;j<npixx-1;j++)
                     {
-                        if (j == 0 || j == npixx -1) continue;
+                        //if (j == 0 || j == npixx -1) continue;
 
                         //# pragma omp critical
                         //{
@@ -198,10 +202,10 @@ int main(int argc, char* argv[])
                 # pragma omp taskwait
 
 
-
                 //# pragma omp master
-                # pragma omp master
+                if (tid == 0)
                 {
+                    //std::cout<<"tid="<<tid<<std::endl;
                     for (i=0; i<npixy;i++)
                     {
                         for (j=0;j<npixx;j++)
@@ -219,27 +223,27 @@ int main(int argc, char* argv[])
                     //std::cout<<"--------------count--------------"<<count<<std::endl;
                     if (count == 0) //5. jump out of loop after meeting local synchronization
                     {
-                        flag_exit = true;
-                        //break;
+                        //flag_exit = true;
+                        break;
                     }
 
 
-                    for (i=0; i<npixx;i++)
+                    for (i=0; i<npixy;i++)
                     {
-                        for (j=0;j<npixy;j++)
+                        for (j=0;j<npixx;j++)
                         {
                             h(i,j)=g(i,j);
                         }
                     }
 
                 }
+                //# pragma omp barrier
+                //if (flag_exit == true) //5. jump out of loop after meeting local synchronization
+                //{
 
+                //    break;
+                //}
 
-                if (flag_exit == true) //5. jump out of loop after meeting local synchronization
-                {
-
-                    break;
-                }
 
             }
 
