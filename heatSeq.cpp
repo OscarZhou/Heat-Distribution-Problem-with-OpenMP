@@ -28,7 +28,6 @@ To run (for example to make a 100X100 pixel image):
 int main(int argc, char* argv[]) 
 {
 	long t_start = clock();   // the start time
-	std::cout << "---------------start time  = "<< t_start <<"--------------\n"<<std::endl;
 	// X and Y dimensions. Force it to be a square.
 	const int npix = atoi(argv[1]);
 	const int npixx = npix;
@@ -114,8 +113,6 @@ int main(int argc, char* argv[])
 		
 	}
 
-	std::cout<<"------------------------times ="<<time<<std::endl;
-	
 	
 	// This is the initial value image where the boundaries and printed
 	// circuit components have been fixed
@@ -123,8 +120,15 @@ int main(int argc, char* argv[])
 
 
 	long t_end = clock();
-	std::cout << "---------------end time  is "<<t_end <<"--------------\n"<<std::endl;
-	std::cout << "The time of calculating is "<< (t_end - t_start)/double(CLOCKS_PER_SEC)<<std::endl;
+
+    std::cout<<"------------------------Sequential Version----------------------"<<std::endl;
+    std::cout<<"================================================================"<<std::endl;
+    std::cout << "---------------Start time = "<<t_start <<"--------------------------------"<<std::endl;
+    std::cout << "---------------End time = "<<t_end <<"--------------------------------"<<std::endl;
+    std::cout << "---------------The time of calculating is "<< (t_end - t_start)/double(CLOCKS_PER_SEC)<<"--------------"<<std::endl;
+    std::cout<< "---------------The times for looping is "<< time<<"--------------------"<<std::endl;
+    std::cout<<"================================================================"<<std::endl;
+
 	// Complete the sequential version to compute the heat transfer,
 	// then make a parallel version of it
 }
