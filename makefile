@@ -2,7 +2,7 @@
 #
 # To build just type:
 #
-# make heatSeq
+# make heat_demo
 
 CPP = g++
 
@@ -10,7 +10,7 @@ CPP = g++
 #CFLAGS = -w -O3 -arch ppc -arch i386
 
 # FLAGS for Linux
-CFLAGS = -w -O3
+CFLAGS = -fopenmp
 
 # Locally compiled modules
 OBJS = fitsfile.o
@@ -23,7 +23,7 @@ LIBS = -lcfitsio -lm
 
 MODS = $(INCP) $(LIBP) $(LIBS) $(OBJS) 
 
-BINS = heatSeq
+BINS = heatParallel
 
 all : $(BINS)
 
@@ -32,8 +32,8 @@ clean :
 	rm -f *.o
 
 # Demo program. Add more programs by making entries similar to this
-heatSeq : heatSeq.cpp draw.hxx array.hxx $(OBJS)
-	${CPP} $(CFLAGS) -o heatSeq heatSeq.cpp $(MODS)
+heatParallel : heatParallel.cpp draw.hxx array.hxx $(OBJS)
+	${CPP} $(CFLAGS) -o heatParallel heatParallel.cpp $(MODS)
 
 # Modules compiled and linked separately
 fitsfile.o : fitsfile.cpp fitsfile.h
